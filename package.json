@@ -1,0 +1,19 @@
+{
+  "name": "tiki",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+"coverage": "npx hardhat coverage",
+    "build": "npx hardhat compile",
+    "test": "npx hardhat test"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.2.0",
+    "hardhat": "^2.4.3"
+  }
+}
