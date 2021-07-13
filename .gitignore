@@ -1,5 +1,7 @@
 # build
 build/
+artifacts
+typechain
 
 # dependencies
 node_modules/
@@ -18,4 +20,4 @@ coverage.json
 Flattened.sol
 cache
 
-artifacts
+
