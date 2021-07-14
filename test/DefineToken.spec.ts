@@ -1,4 +1,5 @@
 import { ethers, waffle } from 'hardhat';
+import { BigNumber } from 'ethers';
 import { expect } from './shared/expect';
 import { fixture } from './shared/fixtures';
 import {
@@ -21,6 +22,8 @@ describe('Define', () => {
     let weth9: WETH9;
     let uniswapRouter: UniswapV2Router02;
 
+    let now: number;
+
     let loadFixture: ReturnType<typeof createFixtureLoader>;
 
     before('create fixture loader', async () => {
@@ -40,27 +43,24 @@ describe('Define', () => {
 
     describe('checking updated numbers for token distribution', async () => {
         it('', async () => {
-            console.log((await define.getTradingIsEnabled()).toString());
-            await define.approve(define.address, '100000000000000000000000');
-            // await define.transfer(define.address, '100000000000000000000000');
-            await define.transfer(alice.address, '100000000000000000000000');
-            console.log((await define.balanceOf(alice.address)).toString());
-            await define.connect(alice).transfer(bob.address, '100000000000000000000');
-            console.log((await define.balanceOf(alice.address)).toString());
-            console.log((await define.balanceOf(bob.address)).toString());
-            console.log((await define.balanceOf(define.address)).toString());
-            await define.connect(alice).transfer(bob.address, '100000000000000000000');
-            console.log((await define.balanceOf(alice.address)).toString());
-            console.log((await define.balanceOf(bob.address)).toString());
-            console.log((await define.balanceOf(define.address)).toString());
-            await define.connect(alice).transfer(bob.address, '100000000000000000000');
-            console.log((await define.balanceOf(alice.address)).toString());
-            console.log((await define.balanceOf(bob.address)).toString());
-            console.log((await define.balanceOf(define.address)).toString());
-            await define.connect(alice).transfer(bob.address, '100000000000000000000');
-            console.log((await define.balanceOf(alice.address)).toString());
-            console.log((await define.balanceOf(bob.address)).toString());
-            console.log((await define.balanceOf(define.address)).toString());
+            // @ts-ignore
+            await define.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
+            await weth9.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
+            await weth9.deposit({ value:  ethers.utils.parseEther('100')});
+            now = (new Date()).getTime() / 1000 | 0;
+            await uniswapRouter.addLiquidity(
+                define.address,
+                weth9.address,
+                ethers.utils.parseEther('100000'),
+                ethers.utils.parseEther('100'),
+                0,
+                0,
+                alice.address,
+                BigNumber.from(now + 60),
+            );
+
+            const lp = await uniswapFactory.getPair(weth9.address, define.address);
+            console.log((await token0.attach(lp).balanceOf(alice.address)).toString());
         });
     });
 })
