@@ -21,3 +21,4 @@ Flattened.sol
 cache
 
 .env
+.secret

@@ -6,7 +6,8 @@
   "scripts": {
     "coverage": "hardhat coverage",
     "build": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "deploy": "npx hardhat run --network rinkeby scripts/deploy.ts"
   },
   "keywords": [],
   "author": "",

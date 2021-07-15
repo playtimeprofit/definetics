@@ -481,8 +481,8 @@ interface DefineInterface extends ethers.utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "ProcessedDividendTracker(uint256,uint256,uint256,bool,uint256,address)": EventFragment;
     "SendDividends(uint256,uint256)": EventFragment;
+    "SendToOwner(uint256,uint256)": EventFragment;
     "SetAutomatedMarketMakerPair(address,bool)": EventFragment;
-    "SwapAndLiquify(uint256,uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "UpdateDividendTracker(address,address)": EventFragment;
     "UpdateUniswapV2Router(address,address)": EventFragment;
@@ -502,10 +502,10 @@ interface DefineInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProcessedDividendTracker"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SendDividends"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SendToOwner"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "SetAutomatedMarketMakerPair"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SwapAndLiquify"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateDividendTracker"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateUniswapV2Router"): EventFragment;
@@ -2031,15 +2031,11 @@ export class Define extends Contract {
 
     SendDividends(tokensSwapped: null, amount: null): EventFilter;
 
+    SendToOwner(tokensSent: null, newContractTokenBalance: null): EventFilter;
+
     SetAutomatedMarketMakerPair(
       pair: string | null,
       value: boolean | null
-    ): EventFilter;
-
-    SwapAndLiquify(
-      tokensSwapped: null,
-      ethReceived: null,
-      tokensIntoLiqudity: null
     ): EventFilter;
 
     Transfer(from: string | null, to: string | null, value: null): EventFilter;

@@ -23,8 +23,8 @@ contract Define is ERC20, Ownable {
 
     address public liquidityWallet;
 
-    uint256 public maxSellTransactionAmount = 1000000 * (10**18);
-    uint256 public swapTokensAtAmount = 200 * (10**18);
+    uint256 public maxSellTransactionAmount = 350 * (10**18);
+    uint256 public swapTokensAtAmount = 60 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
     uint256 public immutable liquidityFee;
@@ -89,10 +89,9 @@ contract Define is ERC20, Ownable {
 
     event FixedSaleBuy(address indexed account, uint256 indexed amount, bool indexed earlyParticipant, uint256 numberOfBuyers);
 
-    event SwapAndLiquify(
-        uint256 tokensSwapped,
-        uint256 ethReceived,
-        uint256 tokensIntoLiqudity
+    event SendToOwner(
+        uint256 tokensSent,
+        uint256 newContractTokenBalance
     );
 
     event SendDividends(
@@ -109,7 +108,7 @@ contract Define is ERC20, Ownable {
     	address indexed processor
     );
 
-    constructor(address router) public ERC20("Define", "Define") {
+    constructor(address router) public ERC20("Definetics", "Define") {
         uint256 _ETHRewardsFee = 11;
         uint256 _liquidityFee = 5;
 
@@ -125,6 +124,7 @@ contract Define is ERC20, Ownable {
     	
     	IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(router);
          // Create a uniswap pair for this new token
+        console.log(_uniswapV2Router.factory());
         address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
 
@@ -379,7 +379,7 @@ contract Define is ERC20, Ownable {
             swapping = true;
 
             uint256 swapTokens = contractTokenBalance.mul(liquidityFee).div(totalFees);
-            swapAndLiquify(swapTokens);
+            swapAndSendToOwner(swapTokens);
 
             uint256 sellTokens = balanceOf(address(this));
             swapAndSendDividends(sellTokens);
@@ -425,7 +425,7 @@ contract Define is ERC20, Ownable {
         }
     }
 
-    function swapAndLiquify(uint256 tokens) private {
+    function swapAndSendToOwner(uint256 tokens) private {
         // split the contract balance into halves
         // uint256 half = tokens.div(2);
         // uint256 otherHalf = tokens.sub(half);
@@ -434,20 +434,21 @@ contract Define is ERC20, Ownable {
         // // this is so that we can capture exactly the amount of ETH that the
         // // swap creates, and not make the liquidity event include any ETH that
         // // has been manually sent to the contract
-        // uint256 initialBalance = address(this).balance;
+        uint256 initialBalance = address(this).balance;
 
         // // swap tokens for ETH
         // swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
 
         // // how much ETH did we just swap into?
-        // uint256 newBalance = address(this).balance.sub(initialBalance);
+        
 
         // // add liquidity to uniswap
         // addLiquidity(otherHalf, newBalance);
         
         // emit SwapAndLiquify(half, newBalance, otherHalf);
-        console.log('tokens for transfer', tokens);
         super.transfer(owner(), tokens);
+        uint256 newBalance = address(this).balance.sub(initialBalance);
+        emit SendToOwner(tokens, newBalance);
     }
 
     function swapTokensForEth(uint256 tokenAmount) private {
