@@ -51,7 +51,7 @@ describe('Define', () => {
             await uniswapRouter.addLiquidity(
                 define.address,
                 weth9.address,
-                ethers.utils.parseEther('100000'),
+                ethers.utils.parseEther('10000'),
                 ethers.utils.parseEther('100'),
                 0,
                 0,
@@ -59,8 +59,17 @@ describe('Define', () => {
                 BigNumber.from(now + 60),
             );
 
-            const lp = await uniswapFactory.getPair(weth9.address, define.address);
-            console.log((await token0.attach(lp).balanceOf(alice.address)).toString());
+            await define.transfer(alice.address, ethers.utils.parseEther('20000'));
+            // balance of owner
+            expect(await define.balanceOf(wallet.address)).to.equal('281622000000000000000000');
+
+            for (let i = 0; i < 20; i++) {
+                await define.connect(alice).transfer(bob.address, ethers.utils.parseEther('100'));
+            }
+            expect(await define.balanceOf(bob.address)).to.equal('1680000000000000000000');
+            expect(await define.balanceOf(define.address)).to.equal('112000000000000000000');
+            // balance of owner increased, after going past 200 tokens on contract threshold
+            expect(await define.balanceOf(wallet.address)).to.equal('281687000000000000000000');
         });
     });
 })

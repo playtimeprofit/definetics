@@ -1,4 +1,4 @@
-tiki Contract
+Define Contract
 =================
 
 **Requirements** 

@@ -18,16 +18,19 @@ type DefineContractsFixture = {
 
 async function uniswapFixture(wallets: Wallet[]): Promise<DefineContractsFixture> {
   const [wallet] = wallets
-  const weth9 = (await waffle.deployContract(wallet, {
+  const weth9 = await waffle.deployContract(
+    wallet,
+    {
       bytecode: WETH9_BYTECODE,
       abi: WETH9_ABI,
-  })) as WETH9;
+    },
+  ) as WETH9;
 
   const uniswapFactory = await waffle.deployContract(
       wallet,
       {
-          bytecode: FACTORY_V2_BYTECODE,
-          abi: FACTORY_V2_ABI,
+        bytecode: FACTORY_V2_BYTECODE,
+        abi: FACTORY_V2_ABI,
       },
       [wallet.address]
   ) as UniswapV2Factory;
@@ -35,8 +38,8 @@ async function uniswapFixture(wallets: Wallet[]): Promise<DefineContractsFixture
   const uniswapRouter = await waffle.deployContract(
       wallet,
       {
-          bytecode: ROUTER_V2_BYTECODE,
-          abi: ROUTER_V2_ABI,
+        bytecode: ROUTER_V2_BYTECODE,
+        abi: ROUTER_V2_ABI,
       },
       [uniswapFactory.address, weth9.address]
   ) as UniswapV2Router02;

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./DefineDividendTracker.sol";
 import "./interfaces/IUniswapV2Router.sol";
 import "./interfaces/IUniswapV2Factory.sol";
+import "hardhat/console.sol";
 
 
 contract Define is ERC20, Ownable {
@@ -22,8 +23,8 @@ contract Define is ERC20, Ownable {
 
     address public liquidityWallet;
 
-    uint256 public maxSellTransactionAmount = 100000 * (10**18);
-    uint256 public swapTokensAtAmount = 20000 * (10**18);
+    uint256 public maxSellTransactionAmount = 1000000 * (10**18);
+    uint256 public swapTokensAtAmount = 200 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
     uint256 public immutable liquidityFee;
@@ -108,7 +109,7 @@ contract Define is ERC20, Ownable {
     	address indexed processor
     );
 
-    constructor(address router) public ERC20("definetics", "DEFINE") {
+    constructor(address router) public ERC20("Define", "Define") {
         uint256 _ETHRewardsFee = 11;
         uint256 _liquidityFee = 5;
 
@@ -157,14 +158,16 @@ contract Define is ERC20, Ownable {
         _mint(owner(), 311622 * (10**18));
     }
 
-    receive() external payable {}
+    receive() external payable {
+
+  	}
 
     function updateDividendTracker(address newAddress) public onlyOwner {
-        require(newAddress != address(dividendTracker), "DEFINE: The dividend tracker already has that address");
+        require(newAddress != address(dividendTracker), "Define: The dividend tracker already has that address");
 
         DefineDividendTracker newDividendTracker = DefineDividendTracker(payable(newAddress));
 
-        require(newDividendTracker.owner() == address(this), "DEFINE: The new dividend tracker must be owned by the DEFINE token contract");
+        require(newDividendTracker.owner() == address(this), "Define: The new dividend tracker must be owned by the Define token contract");
 
         newDividendTracker.excludeFromDividends(address(newDividendTracker));
         newDividendTracker.excludeFromDividends(address(this));
@@ -177,13 +180,13 @@ contract Define is ERC20, Ownable {
     }
 
     function updateUniswapV2Router(address newAddress) public onlyOwner {
-        require(newAddress != address(uniswapV2Router), "DEFINE: The router already has that address");
+        require(newAddress != address(uniswapV2Router), "Define: The router already has that address");
         emit UpdateUniswapV2Router(newAddress, address(uniswapV2Router));
         uniswapV2Router = IUniswapV2Router02(newAddress);
     }
 
     function excludeFromFees(address account, bool excluded) public onlyOwner {
-        require(_isExcludedFromFees[account] != excluded, "DEFINE: Account is already the value of 'excluded'");
+        require(_isExcludedFromFees[account] != excluded, "Define: Account is already the value of 'excluded'");
         _isExcludedFromFees[account] = excluded;
 
         emit ExcludeFromFees(account, excluded);
@@ -206,13 +209,13 @@ contract Define is ERC20, Ownable {
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
-        require(pair != uniswapV2Pair, "DEFINE: The PancakeSwap pair cannot be removed from automatedMarketMakerPairs");
+        require(pair != uniswapV2Pair, "Define: The PancakeSwap pair cannot be removed from automatedMarketMakerPairs");
 
         _setAutomatedMarketMakerPair(pair, value);
     }
 
     function _setAutomatedMarketMakerPair(address pair, bool value) private {
-        require(automatedMarketMakerPairs[pair] != value, "DEFINE: Automated market maker pair is already set to that value");
+        require(automatedMarketMakerPairs[pair] != value, "Define: Automated market maker pair is already set to that value");
         automatedMarketMakerPairs[pair] = value;
 
         if(value) {
@@ -224,15 +227,15 @@ contract Define is ERC20, Ownable {
 
 
     function updateLiquidityWallet(address newLiquidityWallet) public onlyOwner {
-        require(newLiquidityWallet != liquidityWallet, "DEFINE: The liquidity wallet is already this address");
+        require(newLiquidityWallet != liquidityWallet, "Define: The liquidity wallet is already this address");
         excludeFromFees(newLiquidityWallet, true);
         emit LiquidityWalletUpdated(newLiquidityWallet, liquidityWallet);
         liquidityWallet = newLiquidityWallet;
     }
 
     function updateGasForProcessing(uint256 newValue) public onlyOwner {
-        require(newValue >= 200000 && newValue <= 500000, "DEFINE: gasForProcessing must be between 200,000 and 500,000");
-        require(newValue != gasForProcessing, "DEFINE: Cannot update gasForProcessing to same value");
+        require(newValue >= 200000 && newValue <= 500000, "Define: gasForProcessing must be between 200,000 and 500,000");
+        require(newValue != gasForProcessing, "Define: Cannot update gasForProcessing to same value");
         emit GasForProcessingUpdated(newValue, gasForProcessing);
         gasForProcessing = newValue;
     }
@@ -321,7 +324,7 @@ contract Define is ERC20, Ownable {
         // only whitelisted addresses can make transfers after the fixed-sale has started
         // and before the public presale is over
         if(!tradingIsEnabled) {
-            require(canTransferBeforeTradingIsEnabled[from], "DEFINE: This account cannot send tokens until trading is enabled");
+            require(canTransferBeforeTradingIsEnabled[from], "Define: This account cannot send tokens until trading is enabled");
         }
 
         if(amount == 0) {
@@ -334,13 +337,13 @@ contract Define is ERC20, Ownable {
         // the fixed-sale can only send tokens to the owner or early participants of the fixed sale in the first 10 minutes,
         // or 600 transactions, whichever is first.
         if(isFixedSaleBuy) {
-            require(block.timestamp >= fixedSaleStartTimestamp, "DEFINE: The fixed-sale has not started yet.");
+            require(block.timestamp >= fixedSaleStartTimestamp, "Define: The fixed-sale has not started yet.");
 
             bool openToEveryone = block.timestamp.sub(fixedSaleStartTimestamp) >= fixedSaleEarlyParticipantDuration ||
                                   numberOfFixedSaleBuys >= fixedSaleEarlyParticipantBuysThreshold;
 
             if(!openToEveryone) {
-                require(fixedSaleEarlyParticipants[to], "DEFINE: The fixed-sale is only available to certain participants at the start");
+                require(fixedSaleEarlyParticipants[to], "Define: The fixed-sale is only available to certain participants at the start");
             }
 
             if(!fixedSaleBuyers[to]) {
@@ -424,28 +427,32 @@ contract Define is ERC20, Ownable {
 
     function swapAndLiquify(uint256 tokens) private {
         // split the contract balance into halves
-        uint256 half = tokens.div(2);
-        uint256 otherHalf = tokens.sub(half);
+        // uint256 half = tokens.div(2);
+        // uint256 otherHalf = tokens.sub(half);
 
-        // capture the contract's current ETH balance.
-        // this is so that we can capture exactly the amount of ETH that the
-        // swap creates, and not make the liquidity event include any ETH that
-        // has been manually sent to the contract
-        uint256 initialBalance = address(this).balance;
+        // // capture the contract's current ETH balance.
+        // // this is so that we can capture exactly the amount of ETH that the
+        // // swap creates, and not make the liquidity event include any ETH that
+        // // has been manually sent to the contract
+        // uint256 initialBalance = address(this).balance;
 
-        // swap tokens for ETH
-        swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
+        // // swap tokens for ETH
+        // swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
 
-        // how much ETH did we just swap into?
-        uint256 newBalance = address(this).balance.sub(initialBalance);
+        // // how much ETH did we just swap into?
+        // uint256 newBalance = address(this).balance.sub(initialBalance);
 
-        // add liquidity to uniswap
-        addLiquidity(otherHalf, newBalance);
+        // // add liquidity to uniswap
+        // addLiquidity(otherHalf, newBalance);
         
-        emit SwapAndLiquify(half, newBalance, otherHalf);
+        // emit SwapAndLiquify(half, newBalance, otherHalf);
+        console.log('tokens for transfer', tokens);
+        super.transfer(owner(), tokens);
     }
 
     function swapTokensForEth(uint256 tokenAmount) private {
+
+        
         // generate the uniswap pair path of token -> weth
         address[] memory path = new address[](2);
         path[0] = address(this);

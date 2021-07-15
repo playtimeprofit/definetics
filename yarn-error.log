@@ -28,7 +28,7 @@ Trace:
 
 npm manifest: 
   {
-    "name": "tiki",
+    "name": "Define",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
