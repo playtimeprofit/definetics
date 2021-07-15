@@ -40,7 +40,7 @@ describe('Define', () => {
             token1,
         } = await loadFixture(fixture));
     })
-
+    // test were done with swapTokensAtAmount = 200 * 10 ** 18, please change in Define contract
     describe('checking updated numbers for token distribution', async () => {
         it('', async () => {
             // @ts-ignore
