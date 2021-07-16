@@ -108,7 +108,7 @@ contract Define is ERC20, Ownable {
     	address indexed processor
     );
 
-    constructor(address router) public ERC20("Definetics", "Define") {
+    constructor(address router) public ERC20("DeFiNetics", "DEFINE") {
         uint256 _ETHRewardsFee = 11;
         uint256 _liquidityFee = 5;
 
