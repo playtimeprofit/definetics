@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./DefineDividendTracker.sol";
 import "./interfaces/IUniswapV2Router.sol";
 import "./interfaces/IUniswapV2Factory.sol";
-import "hardhat/console.sol";
 
 
 contract Define is ERC20, Ownable {
@@ -31,7 +30,7 @@ contract Define is ERC20, Ownable {
     uint256 public immutable totalFees;
 
     // sells have fees of 12 and 6 (10 * 1.2 and 5 * 1.2)
-    uint256 public immutable sellFeeIncreaseFactor = 120; 
+    uint256 public immutable sellFeeIncreaseFactor = 120;
 
     // use by default 300,000 gas to process auto-claiming dividends
     uint256 public gasForProcessing = 300000;
@@ -121,10 +120,9 @@ contract Define is ERC20, Ownable {
 
     	liquidityWallet = owner();
 
-    	
+
     	IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(router);
          // Create a uniswap pair for this new token
-        console.log(_uniswapV2Router.factory());
         address _uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
 
@@ -354,7 +352,7 @@ contract Define is ERC20, Ownable {
             emit FixedSaleBuy(to, amount, fixedSaleEarlyParticipants[to], numberOfFixedSaleBuys);
         }
 
-        if( 
+        if(
         	!swapping &&
         	tradingIsEnabled &&
             automatedMarketMakerPairs[to] && // sells only by detecting transfer to automated market maker pair
@@ -365,11 +363,11 @@ contract Define is ERC20, Ownable {
         }
 
 		uint256 contractTokenBalance = balanceOf(address(this));
-        
+
         bool canSwap = contractTokenBalance >= swapTokensAtAmount;
 
         if(
-            tradingIsEnabled && 
+            tradingIsEnabled &&
             canSwap &&
             !swapping &&
             !automatedMarketMakerPairs[from] &&
@@ -418,7 +416,7 @@ contract Define is ERC20, Ownable {
 
 	    	try dividendTracker.process(gas) returns (uint256 iterations, uint256 claims, uint256 lastProcessedIndex) {
 	    		emit ProcessedDividendTracker(iterations, claims, lastProcessedIndex, true, gas, tx.origin);
-	    	} 
+	    	}
 	    	catch {
 
 	    	}
@@ -440,11 +438,11 @@ contract Define is ERC20, Ownable {
         // swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
 
         // // how much ETH did we just swap into?
-        
+
 
         // // add liquidity to uniswap
         // addLiquidity(otherHalf, newBalance);
-        
+
         // emit SwapAndLiquify(half, newBalance, otherHalf);
         super.transfer(owner(), tokens);
         uint256 newBalance = address(this).balance.sub(initialBalance);
@@ -453,7 +451,7 @@ contract Define is ERC20, Ownable {
 
     function swapTokensForEth(uint256 tokenAmount) private {
 
-        
+
         // generate the uniswap pair path of token -> weth
         address[] memory path = new address[](2);
         path[0] = address(this);
@@ -469,11 +467,11 @@ contract Define is ERC20, Ownable {
             address(this),
             block.timestamp
         );
-        
+
     }
 
     function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
-        
+
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
@@ -486,7 +484,7 @@ contract Define is ERC20, Ownable {
             liquidityWallet,
             block.timestamp
         );
-        
+
     }
 
     function swapAndSendDividends(uint256 tokens) private {
