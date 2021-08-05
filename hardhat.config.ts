@@ -17,6 +17,9 @@ export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
+      accounts: {
+        accountsBalance: "100000000000000000000000000000000000000000",
+      },
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,

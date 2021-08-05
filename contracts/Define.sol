@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./DefineDividendTracker.sol";
 import "./interfaces/IUniswapV2Router.sol";
 import "./interfaces/IUniswapV2Factory.sol";
+import "hardhat/console.sol";
 
 
 contract Define is ERC20, Ownable {
@@ -22,7 +23,7 @@ contract Define is ERC20, Ownable {
 
     address public liquidityWallet;
 
-    uint256 public maxSellTransactionAmount = 350 * (10**18);
+    uint256 public maxSellTransactionAmount = 1000000 * (10**18);
     uint256 public swapTokensAtAmount = 60 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
@@ -424,28 +425,24 @@ contract Define is ERC20, Ownable {
     }
 
     function swapAndSendToOwner(uint256 tokens) private {
-        // split the contract balance into halves
-        // uint256 half = tokens.div(2);
-        // uint256 otherHalf = tokens.sub(half);
-
         // // capture the contract's current ETH balance.
         // // this is so that we can capture exactly the amount of ETH that the
         // // swap creates, and not make the liquidity event include any ETH that
         // // has been manually sent to the contract
+        
         uint256 initialBalance = address(this).balance;
+        console.log("initialBalance: ", initialBalance);
+        // swap tokens for ETH
+        swapTokensForEth(tokens); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
 
-        // // swap tokens for ETH
-        // swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
-
-        // // how much ETH did we just swap into?
-
-
-        // // add liquidity to uniswap
-        // addLiquidity(otherHalf, newBalance);
-
-        // emit SwapAndLiquify(half, newBalance, otherHalf);
-        super.transfer(owner(), tokens);
         uint256 newBalance = address(this).balance.sub(initialBalance);
+        console.log("newBalance: ", newBalance);
+        
+        //Transfer ETH to Owner
+        (bool success,) = owner().call{value: newBalance}("");
+        require(success, "ERROR TRANSFER ETH ON OWNER ADDRESS");
+        // how much ETH did we just swap into?
+        console.log("owner balance: ", owner().balance);
         emit SendToOwner(tokens, newBalance);
     }
 
