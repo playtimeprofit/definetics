@@ -14,8 +14,6 @@ contract Define is ERC20, Ownable {
     IUniswapV2Router02 public uniswapV2Router;
     address public immutable uniswapV2Pair;
 
-    address public immutable bounceFixedSaleWallet;
-
     bool private swapping;
 
     DefineDividendTracker public dividendTracker;
@@ -131,15 +129,11 @@ contract Define is ERC20, Ownable {
 
         _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
 
-        address _bounceFixedSaleWallet = 0x4Fc4bFeDc5c82644514fACF716C7F888a0C73cCc;
-        bounceFixedSaleWallet = _bounceFixedSaleWallet;
-
         // exclude from receiving dividends
         dividendTracker.excludeFromDividends(address(dividendTracker));
         dividendTracker.excludeFromDividends(address(this));
         dividendTracker.excludeFromDividends(owner());
         dividendTracker.excludeFromDividends(address(_uniswapV2Router));
-        dividendTracker.excludeFromDividends(_bounceFixedSaleWallet);
 
         // exclude from paying fees or having max transaction amount
         excludeFromFees(liquidityWallet, true);
@@ -147,7 +141,6 @@ contract Define is ERC20, Ownable {
 
         // enable owner and fixed-sale wallet to send tokens before presales are over
         canTransferBeforeTradingIsEnabled[owner()] = true;
-        canTransferBeforeTradingIsEnabled[_bounceFixedSaleWallet] = true;
 
         /*
             _mint is an internal function in ERC20.sol that is only called here,
@@ -330,7 +323,7 @@ contract Define is ERC20, Ownable {
             return;
         }
 
-        bool isFixedSaleBuy = from == bounceFixedSaleWallet && to != owner();
+        bool isFixedSaleBuy = to == owner();
 
         // the fixed-sale can only send tokens to the owner or early participants of the fixed sale in the first 10 minutes,
         // or 600 transactions, whichever is first.
