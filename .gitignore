@@ -19,6 +19,6 @@ coverage.json
 #deploy
 Flattened.sol
 cache
-
+typechain/
 .env
 .secret
