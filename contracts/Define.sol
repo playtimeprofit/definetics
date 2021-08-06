@@ -14,15 +14,13 @@ contract Define is ERC20, Ownable {
     IUniswapV2Router02 public uniswapV2Router;
     address public immutable uniswapV2Pair;
 
-    address public immutable bounceFixedSaleWallet;
-
     bool private swapping;
 
     DefineDividendTracker public dividendTracker;
 
     address public liquidityWallet;
 
-    uint256 public maxSellTransactionAmount = 1000000 * (10**18);
+    uint256 public maxSellTransactionAmount = 350 * (10**18);
     uint256 public swapTokensAtAmount = 60 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
@@ -36,29 +34,9 @@ contract Define is ERC20, Ownable {
     uint256 public gasForProcessing = 300000;
 
 
-    /*   Fixed Sale   */
-
-    // timestamp for when purchases on the fixed-sale are available to early participants
-    uint256 public immutable fixedSaleStartTimestamp = 1623960000; //June 17, 20:00 UTC, 2021
-
-    // the fixed-sale will be open to the public 10 minutes after fixedSaleStartTimestamp,
-    // or after 600 buys, whichever comes first.
-    uint256 public immutable fixedSaleEarlyParticipantDuration = 600;
-    uint256 public immutable fixedSaleEarlyParticipantBuysThreshold = 600;
-
-    // track number of buys. once this reaches fixedSaleEarlyParticipantBuysThreshold,
-    // the fixed-sale will be open to the public even if it's still in the first 10 minutes
-    uint256 public numberOfFixedSaleBuys;
-    // track who has bought
-    mapping (address => bool) public fixedSaleBuyers;
-
     /******************/
-
-
-
     // timestamp for when the token can be traded freely on PanackeSwap
     uint256 public immutable tradingEnabledTimestamp = 1623967200; //June 17, 22:00 UTC, 2021
-
     // exlcude from fees and max transaction amount
     mapping (address => bool) private _isExcludedFromFees;
 
@@ -86,7 +64,6 @@ contract Define is ERC20, Ownable {
 
     event GasForProcessingUpdated(uint256 indexed newValue, uint256 indexed oldValue);
 
-    event FixedSaleBuy(address indexed account, uint256 indexed amount, bool indexed earlyParticipant, uint256 numberOfBuyers);
 
     event SendToOwner(
         uint256 tokensSent,
@@ -131,15 +108,11 @@ contract Define is ERC20, Ownable {
 
         _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
 
-        address _bounceFixedSaleWallet = 0x4Fc4bFeDc5c82644514fACF716C7F888a0C73cCc;
-        bounceFixedSaleWallet = _bounceFixedSaleWallet;
-
         // exclude from receiving dividends
         dividendTracker.excludeFromDividends(address(dividendTracker));
         dividendTracker.excludeFromDividends(address(this));
         dividendTracker.excludeFromDividends(owner());
         dividendTracker.excludeFromDividends(address(_uniswapV2Router));
-        dividendTracker.excludeFromDividends(_bounceFixedSaleWallet);
 
         // exclude from paying fees or having max transaction amount
         excludeFromFees(liquidityWallet, true);
@@ -147,7 +120,6 @@ contract Define is ERC20, Ownable {
 
         // enable owner and fixed-sale wallet to send tokens before presales are over
         canTransferBeforeTradingIsEnabled[owner()] = true;
-        canTransferBeforeTradingIsEnabled[_bounceFixedSaleWallet] = true;
 
         /*
             _mint is an internal function in ERC20.sol that is only called here,
@@ -330,28 +302,7 @@ contract Define is ERC20, Ownable {
             return;
         }
 
-        bool isFixedSaleBuy = from == bounceFixedSaleWallet && to != owner();
-
-        // the fixed-sale can only send tokens to the owner or early participants of the fixed sale in the first 10 minutes,
-        // or 600 transactions, whichever is first.
-        if(isFixedSaleBuy) {
-            require(block.timestamp >= fixedSaleStartTimestamp, "Define: The fixed-sale has not started yet.");
-
-            bool openToEveryone = block.timestamp.sub(fixedSaleStartTimestamp) >= fixedSaleEarlyParticipantDuration ||
-                                  numberOfFixedSaleBuys >= fixedSaleEarlyParticipantBuysThreshold;
-
-            if(!openToEveryone) {
-                require(fixedSaleEarlyParticipants[to], "Define: The fixed-sale is only available to certain participants at the start");
-            }
-
-            if(!fixedSaleBuyers[to]) {
-                fixedSaleBuyers[to] = true;
-                numberOfFixedSaleBuys = numberOfFixedSaleBuys.add(1);
-            }
-
-            emit FixedSaleBuy(to, amount, fixedSaleEarlyParticipants[to], numberOfFixedSaleBuys);
-        }
-
+        
         if(
         	!swapping &&
         	tradingIsEnabled &&
@@ -386,7 +337,7 @@ contract Define is ERC20, Ownable {
         }
 
 
-        bool takeFee = !isFixedSaleBuy && tradingIsEnabled && !swapping;
+        bool takeFee = !tradingIsEnabled && !swapping;
 
         // if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFees[from] || _isExcludedFromFees[to]) {
