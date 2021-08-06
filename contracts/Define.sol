@@ -21,7 +21,7 @@ contract Define is ERC20, Ownable {
     address public liquidityWallet;
 
     uint256 public maxSellTransactionAmount = 350 * (10**18);
-    uint256 public swapTokensAtAmount = 60 * (10**18);
+    uint256 public swapTokensAtAmount = 200 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
     uint256 public immutable liquidityFee;
@@ -337,7 +337,7 @@ contract Define is ERC20, Ownable {
         }
 
 
-        bool takeFee = !tradingIsEnabled && !swapping;
+        bool takeFee = tradingIsEnabled && !swapping;
 
         // if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFees[from] || _isExcludedFromFees[to]) {

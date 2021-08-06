@@ -42,7 +42,7 @@ describe('Define', () => {
     })
     // test were done with swapTokensAtAmount = 200 * 10 ** 18, please change in Define contract
     describe('checking updated numbers for token distribution', async () => {
-        xit('', async () => {
+        it('First test', async () => {
             // @ts-ignore
             await define.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
             await weth9.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
@@ -51,17 +51,17 @@ describe('Define', () => {
             await uniswapRouter.addLiquidity(
                 define.address,
                 weth9.address,
-                ethers.utils.parseEther('10000'),
+                ethers.utils.parseEther('100'),
                 ethers.utils.parseEther('100'),
                 0,
                 0,
                 alice.address,
                 BigNumber.from(now + 60),
             );
-
+            let temp = await wallet.getBalance();
             await define.transfer(alice.address, ethers.utils.parseEther('20000'));
             // balance of owner
-            expect(await define.balanceOf(wallet.address)).to.equal('281622000000000000000000');
+            expect(await define.balanceOf(wallet.address)).to.equal('291522000000000000000000');
 
             for (let i = 0; i < 20; i++) {
                 await define.connect(alice).transfer(bob.address, ethers.utils.parseEther('100'));
@@ -69,10 +69,11 @@ describe('Define', () => {
             expect(await define.balanceOf(bob.address)).to.equal('1680000000000000000000');
             expect(await define.balanceOf(define.address)).to.equal('112000000000000000000');
             // balance of owner increased, after going past 200 tokens on contract threshold
-            expect(await define.balanceOf(wallet.address)).to.equal('281687000000000000000000');
+            
+            expect((await wallet.getBalance()).sub(temp)).at.gt(0);
         });
 
-        it('Transwer ETH to OWNER', async () => {
+        xit('Transwer ETH to OWNER', async () => {
             // @ts-ignore
             await define.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
             await weth9.approve(uniswapRouter.address, ethers.utils.parseEther('250000000000000000000'));
