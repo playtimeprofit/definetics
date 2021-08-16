@@ -28,7 +28,7 @@ contract DefineDividendTracker is DividendPayingToken, Ownable {
 
     constructor() public DividendPayingToken("DEFINE_Dividend_Tracker", "DEFINE_Dividend_Tracker") {
     	claimWait = 3600;
-        minimumTokenBalanceForDividends = 1 * (10**18); //must hold 1+ tokens
+        minimumTokenBalanceForDividends = 1 * (10**15); //must hold 0.001+ tokens
     }
 
     function _transfer(address, address, uint256) internal override {
