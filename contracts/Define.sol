@@ -22,7 +22,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
     address public liquidityWallet;
 
-    uint256 public maxSellTransactionAmount = 350 * (10**18);
     uint256 public swapTokensAtAmount = 200 * (10**18);
 
     uint256 public immutable ETHRewardsFee;
@@ -277,15 +276,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         if(amount == 0) {
             super._transfer(from, to, 0);
             return;
-        }
-        
-        if(
-        	!swapping &&
-            automatedMarketMakerPairs[to] && // sells only by detecting transfer to automated market maker pair
-        	from != address(uniswapV2Router) && //router -> pair is removing liquidity which shouldn't have max
-            !_isExcludedFromFees[to] //no max for those excluded from fees
-        ) {
-            require(amount <= maxSellTransactionAmount, "Sell transfer amount exceeds the maxSellTransactionAmount.");
         }
 
 		uint256 contractTokenBalance = balanceOf(address(this));
