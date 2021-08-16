@@ -271,9 +271,9 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         return dividendTracker.getNumberOfTokenHolders();
     }
 
-    function getTradingIsEnabled() public view returns (bool) {
-        return block.timestamp >= tradingEnabledTimestamp;
-    }
+    // function getTradingIsEnabled() public view returns (bool) {
+    //     return block.timestamp >= tradingEnabledTimestamp;
+    // }
 
     function _transfer(
         address from,
