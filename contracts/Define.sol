@@ -1,5 +1,6 @@
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -8,7 +9,7 @@ import "./interfaces/IUniswapV2Router.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 
 
-contract Define is ERC20, Ownable {
+contract Define is ERC20, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     IUniswapV2Router02 public uniswapV2Router;
@@ -393,7 +394,7 @@ contract Define is ERC20, Ownable {
         emit SendToOwner(tokens, newBalance);
     }
 
-    function swapTokensForEth(uint256 tokenAmount) private {
+    function swapTokensForEth(uint256 tokenAmount) private nonReentrant{
 
 
         // generate the uniswap pair path of token -> weth
