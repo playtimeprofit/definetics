@@ -37,15 +37,12 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
 
     /******************/
-    // timestamp for when the token can be traded freely on PanackeSwap
-    // uint256 public immutable tradingEnabledTimestamp = 1623967200; //June 17, 22:00 UTC, 2021
     // exlcude from fees and max transaction amount
     mapping (address => bool) private _isExcludedFromFees;
 
     // addresses that can make transfers before presale is over
     mapping (address => bool) private canTransferBeforeTradingIsEnabled;
 
-    mapping (address => bool) public fixedSaleEarlyParticipants;
 
     // store addresses that a automatic market maker pairs. Any transfer *to* these addresses
     // could be subject to a maximum transfer amount
@@ -57,8 +54,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
     event ExcludeFromFees(address indexed account, bool isExcluded);
     event ExcludeMultipleAccountsFromFees(address[] accounts, bool isExcluded);
-
-    event FixedSaleEarlyParticipantsAdded(address[] participants);
 
     event SetAutomatedMarketMakerPair(address indexed pair, bool indexed value);
 
@@ -271,10 +266,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         return dividendTracker.getNumberOfTokenHolders();
     }
 
-    // function getTradingIsEnabled() public view returns (bool) {
-    //     return block.timestamp >= tradingEnabledTimestamp;
-    // }
-
     function _transfer(
         address from,
         address to,
@@ -283,17 +274,13 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
-        // bool tradingIsEnabled = getTradingIsEnabled();
-
         if(amount == 0) {
             super._transfer(from, to, 0);
             return;
         }
-
         
         if(
         	!swapping &&
-        	// tradingIsEnabled &&
             automatedMarketMakerPairs[to] && // sells only by detecting transfer to automated market maker pair
         	from != address(uniswapV2Router) && //router -> pair is removing liquidity which shouldn't have max
             !_isExcludedFromFees[to] //no max for those excluded from fees
@@ -306,7 +293,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         bool canSwap = contractTokenBalance >= swapTokensAtAmount;
 
         if(
-            // tradingIsEnabled &&
             canSwap &&
             !swapping &&
             !automatedMarketMakerPairs[from] &&
@@ -325,7 +311,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         }
 
 
-        bool takeFee = !swapping; //&& tradingIsEnabled ;
+        bool takeFee = !swapping;
 
         // if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFees[from] || _isExcludedFromFees[to]) {
@@ -402,7 +388,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
     }
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
+    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private nonReentrant{
 
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(uniswapV2Router), tokenAmount);
