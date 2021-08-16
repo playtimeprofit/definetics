@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -163,20 +164,12 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         emit ExcludeFromFees(account, excluded);
     }
 
-    function excludeMultipleAccountsFromFees(address[] calldata accounts, bool excluded) public onlyOwner {
+    function excludeMultipleAccountsFromFees(address[] memory accounts, bool excluded) public onlyOwner {
         for(uint256 i = 0; i < accounts.length; i++) {
             _isExcludedFromFees[accounts[i]] = excluded;
         }
 
         emit ExcludeMultipleAccountsFromFees(accounts, excluded);
-    }
-
-    function addFixedSaleEarlyParticipants(address[] calldata accounts) external onlyOwner {
-        for(uint256 i = 0; i < accounts.length; i++) {
-            fixedSaleEarlyParticipants[accounts[i]] = true;
-        }
-
-        emit FixedSaleEarlyParticipantsAdded(accounts);
     }
 
     function setAutomatedMarketMakerPair(address pair, bool value) public onlyOwner {
@@ -294,9 +287,6 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
         // only whitelisted addresses can make transfers after the fixed-sale has started
         // and before the public presale is over
-        if(!tradingIsEnabled) {
-            require(canTransferBeforeTradingIsEnabled[from], "Define: This account cannot send tokens until trading is enabled");
-        }
 
         if(amount == 0) {
             super._transfer(from, to, 0);
