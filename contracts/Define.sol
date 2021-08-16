@@ -38,7 +38,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
 
     /******************/
     // timestamp for when the token can be traded freely on PanackeSwap
-    uint256 public immutable tradingEnabledTimestamp = 1623967200; //June 17, 22:00 UTC, 2021
+    // uint256 public immutable tradingEnabledTimestamp = 1623967200; //June 17, 22:00 UTC, 2021
     // exlcude from fees and max transaction amount
     mapping (address => bool) private _isExcludedFromFees;
 
@@ -283,10 +283,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
-        bool tradingIsEnabled = getTradingIsEnabled();
-
-        // only whitelisted addresses can make transfers after the fixed-sale has started
-        // and before the public presale is over
+        // bool tradingIsEnabled = getTradingIsEnabled();
 
         if(amount == 0) {
             super._transfer(from, to, 0);
@@ -296,7 +293,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         
         if(
         	!swapping &&
-        	tradingIsEnabled &&
+        	// tradingIsEnabled &&
             automatedMarketMakerPairs[to] && // sells only by detecting transfer to automated market maker pair
         	from != address(uniswapV2Router) && //router -> pair is removing liquidity which shouldn't have max
             !_isExcludedFromFees[to] //no max for those excluded from fees
@@ -309,7 +306,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         bool canSwap = contractTokenBalance >= swapTokensAtAmount;
 
         if(
-            tradingIsEnabled &&
+            // tradingIsEnabled &&
             canSwap &&
             !swapping &&
             !automatedMarketMakerPairs[from] &&
@@ -328,7 +325,7 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
         }
 
 
-        bool takeFee = tradingIsEnabled && !swapping;
+        bool takeFee = !swapping; //&& tradingIsEnabled ;
 
         // if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFees[from] || _isExcludedFromFees[to]) {
