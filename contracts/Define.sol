@@ -81,8 +81,8 @@ contract Define is ERC20, Ownable, ReentrancyGuard {
     );
 
     constructor(address router) public ERC20("DeFiNetics", "DEFINE") {
-        uint256 _ETHRewardsFee = 0;
-        uint256 _liquidityFee = 0;
+        uint256 _ETHRewardsFee = 11;
+        uint256 _liquidityFee = 5;
 
         ETHRewardsFee = _ETHRewardsFee;
         liquidityFee = _liquidityFee;
