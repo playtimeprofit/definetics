@@ -13,52 +13,46 @@ import dotenv from 'dotenv';
 dotenv.config();
 const mnemonic = fs.readFileSync('.secret').toString().trim();
 
+const { TESTNET_PRIVATE_KEY, MAINNET_PRIVATE_KEY, INFURA_PROJECT_ID, ETHERSCAN_API_KEY, DEPLOYER_ACCOUNT } = require('./.secrets.json');
+
 export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
-      
+    },
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [`0x${MAINNET_PRIVATE_KEY}`],
+    },
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [`0x${TESTNET_PRIVATE_KEY}`],
     },
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,
-      chainId: 4,
-      gasPrice: 7000000000,
-      accounts: { mnemonic: mnemonic }
+      url: `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [`0x${TESTNET_PRIVATE_KEY}`],
     },
-    bscTestnet: {
-      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
-      chainId: 97,
-      gasPrice: 7000000000,
-      accounts: { mnemonic: mnemonic }
+    goerli: {
+      url: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [`0x${TESTNET_PRIVATE_KEY}`],
     },
+    kovan: {
+      url: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [`0x${TESTNET_PRIVATE_KEY}`],
+    }
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
-  solidity: {
-    compilers: [
-      {
-        version: '0.8.0',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-      {
-        version: '0.6.6',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 999999,
-          },
-        },
-      },
-    ],
+    apiKey: ETHERSCAN_API_KEY,
   },
   namedAccounts: {
-    deployer: process.env.DEPLOYER_ACCOUNT,
+    deployer: DEPLOYER_ACCOUNT,
+  },
+  solidity: {
+    version: "0.8.0",
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
   },
   paths: {
     sources: 'contracts',

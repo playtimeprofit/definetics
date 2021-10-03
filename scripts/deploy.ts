@@ -6,19 +6,19 @@ async function main() {
   const iterableMapping = await iterableMappingFactory.deploy();
   await iterableMapping.deployed();
 
-  const defineTokenFactory = await ethers.getContractFactory('Define', {
+  const playTimeProfitFactory = await ethers.getContractFactory('PlayTimeProfit', {
     libraries: {
       IterableMapping: iterableMapping.address,
     },
   });
 
   console.log("Deploying...");
-  const define = await defineTokenFactory.deploy('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D');
-  await define.deployed();
-  console.log("Deployed to:", define.address, iterableMapping.address);
+  const playTimeProfitContractInstance = await playTimeProfitFactory.deploy('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D');
+  await playTimeProfitContractInstance.deployed();
+  console.log("Deployed PlayTimeProfit & IterableMapping:", playTimeProfitContractInstance.address, iterableMapping.address);
 
   await hardhat.run("verify:verify", {
-    address: define.address,
+    address: playTimeProfitContractInstance.address,
     constructorArguments: [
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
     ],
