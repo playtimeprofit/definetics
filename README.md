@@ -1,4 +1,4 @@
-Define Contract
+PlayTimeProfit Contract
 =================
 
 **Requirements** 
@@ -15,5 +15,9 @@ Define Contract
 
 - npm run covarage
 - npm run test
+
+**Contract on Rinkeby**
+
+[PlayTimeProfit](https://rinkeby.etherscan.io/address/0x4ed4928c6cb4e2956a391a520f2ec70c6202251f)
 
 
